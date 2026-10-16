@@ -3,8 +3,9 @@
 # Kasutajad failist, paroolid genereeritakse pwgen abil
 # Kasutus: ./kasutajad_paroolid_genereeritud kasutajate_fail
 
-if [ $# -ne 1 ]; then
-    echo "Kasutusjuhend: $0 kasutajate_fail"
+kaivitav_kasutaja=$(whoami)
+if [ "$kaivitav_kasutaja" != "root" ]; then
+    echo "Sul ei ole õigust antud skripti käivitamiseks"
     exit 1
 fi
 
