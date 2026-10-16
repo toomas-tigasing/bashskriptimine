@@ -1,0 +1,40 @@
+#!/bin/bash
+#
+# Kasutajad failist, paroolid genereeritakse pwgen abil
+# Kasutus: ./kasutajad_paroolid_genereeritud kasutajate_fail
+
+if [ $# -ne 1 ]; then
+    echo "Kasutusjuhend: $0 kasutajate_fail"
+    exit 1
+fi
+
+kasutajad=$1
+
+if [ ! -f "$kasutajad" -o ! -r "$kasutajad" ]; then
+    echo "Probleem failiga $kasutajad"
+    exit 1
+fi
+
+echo "Fail on korras"
+
+for kasutajanimi in $(cat "$kasutajad")
+do
+    useradd "$kasutajanimi" -m -s /bin/bash
+    kasu_tulemus=$?
+
+    if [ $kasu_tulemus -eq 0 ]; then
+        echo "Kasutaja $kasutajanimi on lisatud süsteemi"
+        cat /etc/passwd | grep "$kasutajanimi"
+        ls -la /home/"$kasutajanimi"
+
+        # genereerime parooli ja määrame selle kasutajale
+        parool=$(pwgen -s 8 -1)
+        echo "$kasutajanimi:$parool" | chpasswd
+
+        # salvestame logifaili
+        echo "$kasutajanimi:$parool" >> loodud_kasutajad_paroolidega
+    else
+        echo "Probleem kasutaja $kasutajanimi lisamisega"
+        echo "Probleemi kood on $kasu_tulemus"
+    fi
+done
